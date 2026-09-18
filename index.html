@@ -181,6 +181,64 @@ section{padding:88px 0}
 footer{background:var(--navy-3);color:#8FA4B8;padding:44px 0;font-size:13px}
 .foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .foot b{color:#fff}
+
+
+/* ===== Smooth motion / presentation animations ===== */
+html{scroll-behavior:smooth}
+
+.btn{transition:transform .28s cubic-bezier(.22,1,.36,1),background-color .28s ease,border-color .28s ease,box-shadow .28s ease}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(14,36,64,.16)}
+.btn:active{transform:translateY(0);box-shadow:none}
+
+.logo,.mark,.links a{transition:color .25s ease,transform .25s ease,background-color .25s ease}
+.logo:hover .mark{transform:rotate(-4deg) scale(1.04)}
+.links a:hover{color:var(--orange);transform:translateY(-1px)}
+
+.hero::before{animation:heroGlow 8s ease-in-out infinite alternate}
+@keyframes heroGlow{from{transform:translate3d(0,0,0) scale(1);opacity:.72}to{transform:translate3d(-3%,2%,0) scale(1.08);opacity:1}}
+
+/* Hero entrance */
+.hero .pill,.hero h1,.hero .lede,.hero .row,.hero .stats,.hero .collage,.hero .review{animation:heroIn .75s cubic-bezier(.22,1,.36,1) both}
+.hero h1{animation-delay:.08s}.hero .lede{animation-delay:.16s}.hero .row{animation-delay:.24s}.hero .stats{animation-delay:.32s}.hero .collage{animation-delay:.2s}.hero .review{animation-delay:.34s}
+@keyframes heroIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+/* Scroll reveal */
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .75s ease,transform .75s cubic-bezier(.22,1,.36,1);will-change:opacity,transform}
+.reveal.in-view{opacity:1;transform:none}
+.reveal.delay-1{transition-delay:.08s}.reveal.delay-2{transition-delay:.16s}.reveal.delay-3{transition-delay:.24s}.reveal.delay-4{transition-delay:.32s}
+
+/* Cards / tiles */
+.tile{transition:transform .45s cubic-bezier(.22,1,.36,1),box-shadow .45s ease,border-color .3s ease}
+.tile:hover{transform:translateY(-5px) scale(1.015);box-shadow:0 18px 35px rgba(0,0,0,.2);border-color:rgba(255,255,255,.25)}
+.tile svg{transition:transform .45s cubic-bezier(.22,1,.36,1),opacity .3s ease}
+.tile:hover svg{transform:scale(1.12) rotate(3deg);opacity:1}
+
+.review{transition:transform .35s ease,box-shadow .35s ease}
+.review:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(0,0,0,.22)}
+
+.cell,.step,.cutcard,.tier{transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s ease,border-color .3s ease}
+.cell:hover,.step:hover{transform:translateY(-5px)}
+.cell .ic,.step .ic{transition:transform .35s cubic-bezier(.22,1,.36,1),background-color .3s ease}
+.cell:hover .ic,.step:hover .ic{transform:translateY(-2px) scale(1.06);background:var(--navy-2)}
+.cutcard:hover{transform:translateY(-5px);box-shadow:0 18px 35px rgba(0,0,0,.18);border-color:rgba(255,255,255,.24)}
+.tier:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(14,36,64,.12)}
+.tier.hot:hover{box-shadow:0 26px 55px rgba(27,58,95,.3)}
+
+.cta-r img{transition:transform 1.2s cubic-bezier(.22,1,.36,1)}
+.cta-r:hover img{transform:scale(1.045)}
+
+/* Subtle floating motion for the visual tiles */
+.collage .t1{animation:floatTile 5s ease-in-out infinite}
+.collage .t2{animation:floatTile 5.5s ease-in-out .5s infinite}
+.collage .t3{animation:floatTile 5.2s ease-in-out 1s infinite}
+.collage .t4{animation:floatTile 5.8s ease-in-out 1.5s infinite}
+@keyframes floatTile{0%,100%{translate:0 0}50%{translate:0 -4px}}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .reveal{opacity:1!important;transform:none!important}
+}
 </style>
 </head>
 <body>
@@ -413,6 +471,46 @@ footer{background:var(--navy-3);color:#8FA4B8;padding:44px 0;font-size:13px}
       window.scrollTo({top:0, behavior:'smooth'});
     }
   }, true);
+})();
+
+
+// Smooth scroll-reveal animations
+(function(){
+  var selectors = [
+    '.logos-head', '.marquee',
+    '.benefits .head', '.benefits .cell',
+    'section:not(.benefits):not(.logos) .head', '.step',
+    '.band .cutcard', '.tiers .tier', '.fine', '.cta-l', '.cta-r', 'footer'
+  ];
+  var elements=[];
+  selectors.forEach(function(selector){
+    document.querySelectorAll(selector).forEach(function(el){
+      if(!el.classList.contains('reveal')){
+        el.classList.add('reveal');
+        elements.push(el);
+      }
+    });
+  });
+
+  document.querySelectorAll('.benefits .cell, .step, .band .cutcard, .tiers .tier').forEach(function(el,i){
+    el.classList.add('delay-'+((i%4)+1));
+  });
+
+  if(!('IntersectionObserver' in window)){
+    elements.forEach(function(el){el.classList.add('in-view')});
+    return;
+  }
+
+  var observer=new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        entry.target.classList.add('in-view');
+        observer.unobserve(entry.target);
+      }
+    });
+  },{threshold:.14,rootMargin:'0px 0px -50px 0px'});
+
+  elements.forEach(function(el){observer.observe(el)});
 })();
 </script>
 
